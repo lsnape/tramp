@@ -11,6 +11,7 @@
                  [com.cemerick/url "0.1.1"]
                  [camel-snake-kebab "0.3.0"]
                  [jarohen/nomad "0.7.0"]
+                 [com.novemberain/monger "2.0.1"]
                  
                  [hiccup "1.0.5"]
                  [garden "1.2.5"]

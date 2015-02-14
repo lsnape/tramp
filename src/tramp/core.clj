@@ -30,7 +30,7 @@
         :let [[image-url] (->> (html/select article [:.listing-thumbnail])
                                (map parse-image-elem))]]
 
-    (-> {:id (get-in article [:attrs :id])
+    (-> {:listing-id (str "gumtree-" (get-in article [:attrs :id]))
      
          :title (->> (html/select article [:div.listing-content])
                      (map (comp :content second :content))
