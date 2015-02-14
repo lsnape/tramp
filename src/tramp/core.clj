@@ -12,7 +12,6 @@
   (let [search-url (str (-> (url (gumtree-base-url) "search")
                             (assoc :query (map-keys csk/->snake_case_keyword {:search-category search-category
                                                                               :search-location search-location}))))]
-    
     (html/html-resource (java.net.URL. search-url))))
 
 ;; TODO - use zippers here :)
@@ -30,22 +29,31 @@
 
         :let [[image-url] (->> (html/select article [:.listing-thumbnail])
                                (map parse-image-elem))]]
-    
+
     (-> {:id (get-in article [:attrs :id])
      
          :title (->> (html/select article [:div.listing-content])
                      (map (comp :content second :content))
-                     flatten)}
+                     flatten)
+
+         :description (->> (html/select article [:div.listing-content])
+                           (map (comp #(nth % 3) :content))
+                           first
+                           :content
+                           flatten)}
         
         (assoc-some :image-url image-url))))
 
 (defn fetch-gumtree-listings! [{:keys [search-category search-location distance] :as opts}]
   (->> (gumtree-request opts)
        parse-search-html
+       (filter :image-url)
+              
        ;; TODO - persistence layer + diffing
        ))
 
 (comment
   (def foo-req
-    (gumtree-request {:search-category "1-bedroom-rent"
-                      :search-location "bristol"})))
+    (fetch-gumtree-listings! {:search-category "2-bedrooms-rent"
+                              :search-location "bristol"}))
+  )
