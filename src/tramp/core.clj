@@ -3,7 +3,8 @@
             [cemerick.url :refer [url]]
             [medley.core :refer [map-keys find-first assoc-some]]
             [net.cgrand.enlive-html :as html]
-            [tramp.db :as db]))
+            [tramp.db :as db]
+            [tramp.recur :refer [at-minute-interval]]))
 
 (defn gumtree-base-url []
   "http://www.gumtree.com")
@@ -50,7 +51,12 @@
        (remove db/seen-listing?)))
 
 (comment
-  (def foo-req
-    (fetch-gumtree-listings! {:search-category "2-bedrooms-rent"
-                              :search-location "bristol"}))
+  (defn start-watching! []
+    (let [stop-fn (at-minute-interval 1
+                    (fetch-gumtree-listings! {:search-category "2-bedrooms-rent"
+                                              :search-location "bristol"}))])
+    {:stop-fn stop-fn}))
+
+(defn -main [& _]
+  ;; TODO - start watching
   )
