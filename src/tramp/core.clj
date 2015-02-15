@@ -1,9 +1,9 @@
 (ns tramp.core
-  (:require [cemerick.url :refer [url]]
+  (:require [camel-snake-kebab.core :as csk]
+            [cemerick.url :refer [url]]
+            [medley.core :refer [map-keys find-first assoc-some]]
             [net.cgrand.enlive-html :as html]
-            [clj-http.client :as http]
-            [camel-snake-kebab.core :as csk]
-            [medley.core :refer [map-keys find-first assoc-some]]))
+            [tramp.db :as db]))
 
 (defn gumtree-base-url []
   "http://www.gumtree.com")
@@ -47,10 +47,7 @@
 (defn fetch-gumtree-listings! [{:keys [search-category search-location distance] :as opts}]
   (->> (gumtree-request opts)
        parse-search-html
-       (filter :image-url)
-              
-       ;; TODO - persistence layer + diffing
-       ))
+       (remove db/seen-listing?)))
 
 (comment
   (def foo-req
