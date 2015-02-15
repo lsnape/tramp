@@ -3,5 +3,10 @@
             :db-name "tramp"
             :coll "listings"}
 
- :nomad/hosts {"Lukes-MacBook-Pro.local" {:mongo-db {:db "tramp_test"
+ :nomad/hosts {"Lukes-MacBook-Pro.local" {:nomad/private-file #nomad/file "/Users/lukesnape/.email-creds.edn"
+                                          :email-creds {:host "smtp.gmail.com"
+                                                        :user "username"
+                                                        :pass "passwd"}
+                                          
+                                          :mongo-db {:db "tramp_test"
                                                      :coll "listings"}}}}
