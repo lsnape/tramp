@@ -1,10 +1,14 @@
 (ns tramp.core
-  (:require [camel-snake-kebab.core :as csk]
+  (:require [tramp.db :as db]
+            [tramp.render :as render]
+            [camel-snake-kebab.core :as csk]
             [cemerick.url :refer [url]]
+            [chime :refer [chime-at]]
+            [clj-time.core :as t]
+            [clj-time.periodic :refer [periodic-seq]]
             [medley.core :refer [map-keys find-first assoc-some]]
             [net.cgrand.enlive-html :as html]
-            [tramp.db :as db]
-            [tramp.recur :refer [at-minute-interval]]))
+            [tramp.email :as email]))
 
 (defn gumtree-base-url []
   "http://www.gumtree.com")
@@ -50,13 +54,38 @@
        parse-search-html
        (remove db/seen-listing?)))
 
-(comment
-  (defn start-watching! []
-    (let [stop-fn (at-minute-interval 1
-                    (fetch-gumtree-listings! {:search-category "2-bedrooms-rent"
-                                              :search-location "bristol"}))])
-    {:stop-fn stop-fn}))
+(defn start-watching! []
+  (letfn [(fetch-listings! [time]
+            (prn "fetching listings at" time)
+            (for [[search-category search-location] [["1-bedroom-rent" "bristol"]
+                                                     ["2-bedrooms-rent" "bristol"]]]
+
+              (-> (fetch-gumtree-listings! {:search-category search-category
+                                            :search-location search-location})
+                              
+                  render/render-listings-email
+
+                  (as-> email-body
+                    (email/send-html-email! {:from "ldjsnape@gmail.com"
+                                             :to "ldjsnape@gmail.com"
+                                             :subject "Today's listings"
+                                             :body email-body})))))]
+    {:stop-fn (chime-at (periodic-seq (t/now) (t/minutes 1))
+                fetch-listings!)}))
 
 (defn -main [& _]
-  ;; TODO - start watching
+  (start-watching!))
+
+(comment
+  (-> (fetch-gumtree-listings! {:search-category "1-bedroom-rent"
+                                :search-location "bristol"})
+
+      render/render-listings-email
+
+      (as-> email-body
+        (email/send-html-email! {:from "ldjsnape@gmail.com"
+                                 :to "ldjsnape@gmail.com"
+                                 :subject "Today's listings"
+                                 :body email-body})))
+  
   )
