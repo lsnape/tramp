@@ -5,6 +5,7 @@
 
  :nomad/hosts {"Lukes-MacBook-Pro.local" {:nomad/private-file #nomad/file "/Users/lukesnape/.email-creds.edn"
                                           :email-creds {:host "smtp.gmail.com"
+                                                        :email "ldjsnape@gmail.com"
                                                         :user "username"
                                                         :pass "passwd"}
                                           
