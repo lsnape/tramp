@@ -8,12 +8,13 @@
   (monger/connect (:mongo-db (config))))
 
 (defn insert-listings! [listings]
-  (let [conn (mongo-conn)
-        {:keys [host port db-name coll]} (:mongo-db (config))
-        db (monger/get-db (mongo-conn) db-name)]
+  (when (seq listings)
+    (let [conn (mongo-conn)
+          {:keys [host port db-name coll]} (:mongo-db (config))
+          db (monger/get-db (mongo-conn) db-name)]
 
-    (map #(assoc % :_id (ObjectId.)) listings)
-    (coll/insert-batch db coll listings)))
+      (map #(assoc % :_id (ObjectId.)) listings)
+      (coll/insert-batch db coll listings))))
 
 (defn seen-listing? [{:keys [listing-id] :as listing}]
   (let [{:keys [host port db-name coll]} (:mongo-db (config))
